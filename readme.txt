@@ -19,3 +19,6 @@ git add 后面可以指明要跟踪的文件或目录路径。如果是目录的
     build/
     # 会忽略 doc/notes.txt 但不包括 doc/server/arch.txt
     doc/*.txt
+
+git diff
+   
