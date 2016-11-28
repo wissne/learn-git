@@ -6,5 +6,5 @@ target/
 build/
 *.class
 
-*.log
+\*.log
 
