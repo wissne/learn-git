@@ -5,6 +5,7 @@ import org.openqa.selenium.interactions.internal.Coordinates;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.Select;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -59,6 +60,14 @@ public class JSWebElement {
         }
     }
 
+    public JSWebElement findElementByPartialLinkText(String using) {
+        try {
+            return new JSWebElement((RemoteWebElement) this.remoteWebElement.findElementByPartialLinkText(using));
+        } catch (NoSuchElementException e) {
+            return new JSWebElement();
+        }
+    }
+
     public JSWebElement findElementByDom(String using) {
         try {
             JavascriptExecutor js = this.getJavascriptExecutor();
@@ -67,6 +76,27 @@ public class JSWebElement {
         } catch (NoSuchElementException e) {
             return new JSWebElement();
         }
+    }
+
+    public JSWebElement findElement(By by) {
+        try {
+            return new JSWebElement((RemoteWebElement) this.remoteWebElement.findElement(by));
+        } catch (NoSuchElementException e) {
+            return new JSWebElement();
+        }
+    }
+
+    public List<JSWebElement> findElements(By by) {
+        List<JSWebElement> result = new ArrayList<JSWebElement>();
+        try {
+            List<WebElement> elements = this.remoteWebElement.findElements(by);
+
+            for (WebElement element : elements) {
+                result.add(new JSWebElement((RemoteWebElement) element));
+            }
+        } catch (NoSuchElementException e) {
+        }
+        return result;
     }
 
     public Boolean isExist() {
@@ -131,7 +161,7 @@ public class JSWebElement {
         return remoteWebElement.isSelected();
     }
 
-    public JSWebElement select(String by, String value) throws Exception {
+    private JSWebElement select(String by, String value) throws Exception {
         if (remoteWebElement.getTagName().equals("select")) {
             Select select = new Select(remoteWebElement);
             if (by.equals("index")) {
@@ -148,7 +178,19 @@ public class JSWebElement {
         return this;
     }
 
-    public JSWebElement deSelect(String by, String value) throws Exception {
+    public JSWebElement selectByIndex(String value) throws Exception {
+        return select("index", value);
+    }
+
+    public JSWebElement selectByText(String value) throws Exception {
+        return select("text", value);
+    }
+
+    public JSWebElement selectByValue(String value) throws Exception {
+        return select("value", value);
+    }
+
+    private JSWebElement deSelect(String by, String value) throws Exception {
         if (remoteWebElement.getTagName().equals("select")) {
             Select select = new Select(remoteWebElement);
             if (by.equals("index")) {
@@ -165,6 +207,22 @@ public class JSWebElement {
             throw e;
         }
         return this;
+    }
+
+    public JSWebElement deSelectByIndex(String value) throws Exception {
+        return deSelect("index", value);
+    }
+
+    public JSWebElement deSelectByText(String value) throws Exception {
+        return deSelect("text", value);
+    }
+
+    public JSWebElement deSelectByValue(String value) throws Exception {
+        return deSelect("value", value);
+    }
+
+    public JSWebElement deSelectAll(String value) throws Exception {
+        return deSelect("*", value);
     }
 
     public boolean isSelectMultiple() throws Exception {
@@ -241,7 +299,7 @@ public class JSWebElement {
         return this;
     }
 
-    public JSWebElement check(String by, String value) throws Exception {
+    private JSWebElement check(String by, String value) throws Exception {
         if (remoteWebElement.getTagName().equals("input")) {
             if (remoteWebElement.getAttribute("type").equals("radio")) {
                 WebDriver wd = remoteWebElement.getWrappedDriver();
@@ -269,6 +327,18 @@ public class JSWebElement {
             throw e;
         }
         return this;
+    }
+
+    public JSWebElement checkByIndex(String value) throws Exception {
+        return check("index", value);
+    }
+
+    public JSWebElement checkByValue(String value) throws Exception {
+        return check("value", value);
+    }
+
+    public JSWebElement check(String value) throws Exception {
+        return check("", value);
     }
 
     public JSWebElement unCheck() throws Exception {

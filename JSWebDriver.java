@@ -3,22 +3,13 @@ package com.hsbc.grt.lem;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.RemoteWebElement;
@@ -56,7 +47,7 @@ public class JSWebDriver {
         return this;
     }
 
-    public JSWebDriver switchToWindow(String by, String value, String... match) throws Exception {
+    private JSWebDriver switchToWindow(String by, String value, String... regex) throws Exception {
         String currenthandle = remoteWebDriver.getWindowHandle();
         Set<String> handles = remoteWebDriver.getWindowHandles();
         int currentIndex = -1;
@@ -67,7 +58,7 @@ public class JSWebDriver {
                 continue;
             } else {
                 remoteWebDriver.switchTo().window(handle);
-                if (match.length == 1 && match[0].equals("regex")) {
+                if (regex.length == 1 && regex[0].equals("regex")) {
                     if (by.equals("title")) {
                         searchString = remoteWebDriver.getTitle();
                     } else if (by.equals("url")) {
@@ -96,6 +87,18 @@ public class JSWebDriver {
         throw e;
     }
 
+    public JSWebDriver switchToWinowByUrl(String value, String... regex) throws Exception {
+        return this.switchToWindow("url", value, regex);
+    }
+
+    public JSWebDriver switchToWinowByTitle(String value, String... regex) throws Exception {
+        return this.switchToWindow("title", value, regex);
+    }
+
+    public JSWebDriver switchToWinowByIndex(String value) throws Exception {
+        return this.switchToWindow("index", value);
+    }
+
     public JSWebDriver clickAlertSure() {
         Alert alert = remoteWebDriver.switchTo().alert();
         alert.accept();
@@ -119,8 +122,8 @@ public class JSWebDriver {
         return alert.getText();
     }
 
-    public JSWebDriver switchToFrame(JSWebElement jselement) {
-        remoteWebDriver.switchTo().frame(jselement.getNativeWebElement());
+    public JSWebDriver switchToFrame(JSWebElement jseElement) {
+        remoteWebDriver.switchTo().frame(jseElement.getNativeWebElement());
         return this;
     }
 
@@ -230,6 +233,35 @@ public class JSWebDriver {
         } catch (NoSuchElementException e) {
             return new JSWebElement();
         }
+    }
+
+    public JSWebElement findElementByPartialLinkText(String using) {
+        try {
+            return new JSWebElement((RemoteWebElement) remoteWebDriver.findElementByPartialLinkText(using));
+        } catch (NoSuchElementException e) {
+            return new JSWebElement();
+        }
+    }
+
+    public JSWebElement findElement(By by) {
+        try {
+            return new JSWebElement((RemoteWebElement) this.remoteWebDriver.findElement(by));
+        } catch (java.util.NoSuchElementException e) {
+            return new JSWebElement();
+        }
+    }
+
+    public List<JSWebElement> findElements(By by) {
+        List<JSWebElement> result = new ArrayList<JSWebElement>();
+        try {
+            List<WebElement> elements = this.remoteWebDriver.findElements(by);
+
+            for (WebElement element : elements) {
+                result.add(new JSWebElement((RemoteWebElement) element));
+            }
+        } catch (java.util.NoSuchElementException e) {
+        }
+        return result;
     }
 
     public JSWebElement findElementByDom(String using) {
